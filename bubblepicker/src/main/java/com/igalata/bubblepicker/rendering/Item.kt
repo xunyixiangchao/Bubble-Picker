@@ -34,11 +34,13 @@ data class Item(val pickerItem: PickerItem, val circleBody: CircleBody) {
     val currentPosition: Vec2
         get() = circleBody.physicalBody.position
 
+    private var isVisible = true
+        get() = circleBody.isVisible
     private var texture: Int = 0
     private var imageTexture: Int = 0
     private val currentTexture: Int
         get() = if (circleBody.increased || circleBody.isIncreasing) imageTexture else texture
-    private val bitmapSize = 300f
+    private val bitmapSize = 256f
     private val gradient: LinearGradient?
         get() {
             return pickerItem.gradient?.let {
@@ -55,6 +57,7 @@ data class Item(val pickerItem: PickerItem, val circleBody: CircleBody) {
         glActiveTexture(GL_TEXTURE)
         glBindTexture(GL_TEXTURE_2D, currentTexture)
         glUniform1i(glGetUniformLocation(programId, BubbleShader.U_TEXT), 0)
+        glUniform1i(glGetUniformLocation(programId, BubbleShader.U_VISIBILITY), if (isVisible) 1 else -1)
         glUniformMatrix4fv(glGetUniformLocation(programId, U_MATRIX), 1, false, calculateMatrix(scaleX, scaleY), 0)
         glDrawArrays(GL_TRIANGLE_STRIP, index * 4, 4)
     }
@@ -82,7 +85,7 @@ data class Item(val pickerItem: PickerItem, val circleBody: CircleBody) {
     private fun drawBackground(canvas: Canvas, withImage: Boolean) {
         val bgPaint = Paint()
         bgPaint.style = Paint.Style.FILL
-        pickerItem.color?.let { bgPaint.color = pickerItem.color }
+        pickerItem.color?.let { bgPaint.color = pickerItem.color!! }
         pickerItem.gradient?.let { bgPaint.shader = gradient }
         if (withImage) bgPaint.alpha = (pickerItem.overlayAlpha * 255).toInt()
         canvas.drawRect(0f, 0f, bitmapSize, bitmapSize, bgPaint)
@@ -92,7 +95,7 @@ data class Item(val pickerItem: PickerItem, val circleBody: CircleBody) {
         if (pickerItem.title == null || pickerItem.textColor == null) return
 
         val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = pickerItem.textColor
+            color = pickerItem.textColor!!
             textSize = pickerItem.textSize
             typeface = pickerItem.typeface
         }
