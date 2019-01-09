@@ -26,7 +26,7 @@ object Engine {
     private var bubbleRadius = 0.17f
 
     private val world = World(Vec2(0f, 0f), false)
-    private val step = 0.0005f
+    private val step = 0.001f
     private val bodies: ArrayList<CircleBody> = ArrayList()
     private var borders: ArrayList<Border> = ArrayList()
     private val resizeStep = 0.005f
